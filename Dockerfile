@@ -12,12 +12,15 @@ WORKDIR ${APP_PATH}
 COPY ./entrypoint.sh ${APP_PATH}/entrypoint.sh
 
 RUN apk add --no-cache \
+	curl \
 	openrc \
 	docker \
 	docker-cli \
 	docker-cli-buildx \
 	docker-cli-compose \
 	python3 \
+	&& python -m venv $POETRY_VIRTUALENV_PATH \
+	&& echo 'source $POETRY_VIRTUALENV_PATH/bin/activate' >> /etc/bash.bashrc \
 	&& chmod +x ${APP_PATH}/entrypoint.sh \
 	&& rc-update add docker boot
 
