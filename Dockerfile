@@ -1,27 +1,13 @@
-FROM alpine:latest AS build
-LABEL maintainer="Lucas Cantarelli"
-# Environment Variables
-ENV PYTHONUNBUFFERED 1
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV APP_PATH=/app
-ENV POETRY_VIRTUALENV_PATH=${APP_PATH}/.venv
-ENV POETRY_CACHE_DIR=${POETRY_VIRTUALENV_PATH}/.cache
-ENV PATH="${POETRY_VIRTUALENV_PATH}/bin:${PATH}"
-# Workdir
-WORKDIR ${APP_PATH}
-COPY ./entrypoint.sh ${APP_PATH}/entrypoint.sh
+FROM alpine:latest AS runner
 
-RUN apk add --no-cache \
-	curl \
-	openrc \
-	docker \
-	docker-cli \
-	docker-cli-buildx \
-	docker-cli-compose \
-	python3 \
-	&& python -m venv $POETRY_VIRTUALENV_PATH \
-	&& echo 'source $POETRY_VIRTUALENV_PATH/bin/activate' >> /etc/bash.bashrc \
-	&& chmod +x ${APP_PATH}/entrypoint.sh \
-	&& rc-update add docker boot
+ENV RUNNER_PATH=/runner
 
-ENTRYPOINT [ "sh", "entrypoint.sh" ]
+WORKDIR $RUNNER_PATH
+
+RUN apk add --no-cache curl \
+	&& curl -f -o actions-runner-linux-x64-2.307.1.tar.gz -L https://github.com/actions/runner/releases/download/v2.307.1/actions-runner-linux-x64-2.307.1.tar.gz \
+	&& tar xzf ./actions-runner-linux-x64-2.307.1.tar.gz
+
+CMD ["sh", "-c", "./config.sh", "--url", "https://github.com/dolorestec", "--token", "${RUNNER_TOKEN}"]
+
+ENTRYPOINT [ "sh", "-c", "exec ./run.sh" ]
