@@ -50,8 +50,9 @@ RUN mkdir -p ${RUNNER_PATH} \
 	&& chown -R ${USER}:${USER} ${USER_PATH} \
 	&& echo "${USER} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
 	&& chown -R ${USER}:${USER} ${USER_PATH} \
-	&& chmod -R 777 ${USER_PATH}
-
+	&& chmod -R 777 ${USER_PATH} \
+	&& mkdir /var/run/docker.sock \
+	&& chmod 777 /var/run/docker.sock
 COPY --from=runner ${USER} ${RUNNER_PATH}
 
 COPY ./entrypoint.sh ${RUNNER_PATH}/entrypoint.sh
