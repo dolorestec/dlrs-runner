@@ -99,11 +99,11 @@ jobs:
       - name: Login to ghcr.io
         uses: dolorestec/devops/.github/actions/docker/registry/login@develop
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ${{ env.DLRS_REGISTRY }}
           username: ${{ env.USERNAME }}
           token: ${{ env.TOKEN }}
         env:
-          REGISTRY: ghcr.io
+          DLRS_REGISTRY: ${{ env.DLRS_REGISTRY }}
           USERNAME: ${{ github.actor }}
           TOKEN: ${{ github.token }}
                 
@@ -112,6 +112,7 @@ jobs:
         with:
           image: "ghcr.io/${{ env.DLRS_REPOSITORY }}"
           tag: ${{ env.DLRS_TAG }}
+          registry: ${{ env.DLRS_REGISTRY }}
           context: .
           dockerfile: Dockerfile
           push: true
@@ -120,6 +121,7 @@ jobs:
         env:
           DLRS_REPOSITORY: ${{ env.DLRS_REPOSITORY }}
           DLRS_TAG: ${{ env.DLRS_TAG }}
+          DLRS_REGISTRY: ${{ env.DLRS_REGISTRY }}
           DLRS_RUNNER_VERSION: ${{ env.DLRS_RUNNER_VERSION }}
           DLRS_RUNNER_TOKEN: ${{ env.DLRS_RUNNER_TOKEN }}
 
@@ -127,6 +129,6 @@ jobs:
       - name: Logout from ghcr.io
         uses: dolorestec/devops/.github/actions/docker/registry/logout@develop
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ${{ env.DLRS_REGISTRY }}
         env:
-          REGISTRY: ghcr.io
+          DLRS_REGISTRY: ${{ env.DLRS_REGISTRY }}
