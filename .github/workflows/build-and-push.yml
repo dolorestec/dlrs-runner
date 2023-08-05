@@ -6,9 +6,7 @@ on:
     branches:
       - main
       - develop
-
   workflow_dispatch:
-    
   
 concurrency:
   group: ${{ github.ref }}
@@ -45,6 +43,8 @@ jobs:
           echo "DLRS_BRANCH=$(echo ${{ github.ref }} | awk -F'/' '{print $NF}')" >> ${{env.DLRS_ENV_FILE}}
           echo "DLRS_TAG=$(cat ${{env.DLRS_VERSION_FILE}} | grep version | awk -F':' '{print $2}' | sed 's/ \|"\|//g')" >> ${{env.DLRS_ENV_FILE}}
           echo "DLRS_SUFFIX=$( echo $(cat ${{env.DLRS_VERSION_FILE}} | grep version | awk -F':' '{print $2}' | sed 's/ \|"\|//g') | awk -F'-' '{print $2}')" >> ${{env.DLRS_ENV_FILE}}
+          echo "DLRS_RUNNER_VERSION="2.307.1"" >> ${{env.DLRS_ENV_FILE}}
+          echo "DLRS_RUNNER_URL="https://github.com/actions/runner/releases/download/v$(echo $DLRS_RUNNER_VERSION)/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz"" >> ${{env.DLRS_ENV_FILE}}
           echo "::endgroup::"
         env:
           DLRS_ENV_FILE: ${{ format('{0}-env.json',github.event.repository.name) }}

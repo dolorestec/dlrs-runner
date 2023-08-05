@@ -1,27 +1,41 @@
-FROM alpine:latest AS build
-LABEL maintainer="Lucas Cantarelli"
-# Environment Variables
-ENV PYTHONUNBUFFERED 1
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV APP_PATH=/app
-ENV POETRY_VIRTUALENV_PATH=${APP_PATH}/.venv
-ENV POETRY_CACHE_DIR=${POETRY_VIRTUALENV_PATH}/.cache
-ENV PATH="${POETRY_VIRTUALENV_PATH}/bin:${PATH}"
-# Workdir
-WORKDIR ${APP_PATH}
-COPY ./entrypoint.sh ${APP_PATH}/entrypoint.sh
+FROM alpine:latest AS runner
+
+ENV RUNNER_PATH=/runner
+ENV RUNNER_VERSION="2.307.1"
+ENV RUNNER_URL=https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
+
+WORKDIR ${RUNNER_PATH}
 
 RUN apk add --no-cache \
+	ca-certificates \
 	curl \
+	&& curl -sSL ${RUNNER_URL} | tar -xz \
+	&& rm -rf /var/cache/apk/* \
+	&& rm -rf *.tar.gz
+
+FROM alpine:latest AS builder
+
+ENV RUNNER_PATH=/runner
+
+COPY --from=runner ${RUNNER_PATH} ${RUNNER_PATH}
+
+RUN apk add --no-cache \
+	git \
+	curl \
+	ca-certificates \
 	openrc \
 	docker \
 	docker-cli \
 	docker-cli-buildx \
 	docker-cli-compose \
-	python3 \
-	&& python -m venv $POETRY_VIRTUALENV_PATH \
-	&& echo 'source $POETRY_VIRTUALENV_PATH/bin/activate' >> /etc/bash.bashrc \
-	&& chmod +x ${APP_PATH}/entrypoint.sh \
+	&& rm -rf /var/cache/apk/* \
 	&& rc-update add docker boot
 
-ENTRYPOINT [ "sh", "entrypoint.sh" ]
+WORKDIR ${RUNNER_PATH}
+
+COPY ./entrypoint.sh ${RUNNER_PATH}
+
+RUN chmod +x ${RUNNER_PATH}/*.sh
+
+#ENTRYPOINT [ "sh", "entrypoint.sh" ]
+ENTRYPOINT [ "/bin/sh" ]
