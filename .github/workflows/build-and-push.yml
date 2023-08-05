@@ -115,9 +115,8 @@ jobs:
           context: .
           dockerfile: Dockerfile
           push: true
-          build-args: |
-            DLRS_RUNNER_VERSION=${{ env.DLRS_RUNNER_VERSION }}
-            DLRS_RUNNER_TOKEN=${{ env.DLRS_RUNNER_TOKEN }}
+          runner-version: ${{ env.DLRS_RUNNER_VERSION }}
+          runner-token: ${{ env.DLRS_RUNNER_TOKEN }}
         env:
           DLRS_REPOSITORY: ${{ env.DLRS_REPOSITORY }}
           DLRS_TAG: ${{ env.DLRS_TAG }}
