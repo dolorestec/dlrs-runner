@@ -52,7 +52,9 @@ RUN mkdir -p ${RUNNER_PATH} \
 	&& chown -R ${USER}:${USER} ${USER_PATH} \
 	&& chmod -R 777 ${USER_PATH} \
 	&& mkdir /var/run/docker.sock \
-	&& chmod 777 /var/run/docker.sock
+	&& chmod 777 /var/run/docker.sock \
+	&& systemctl enable docker
+	
 COPY --from=runner ${USER} ${RUNNER_PATH}
 
 COPY ./entrypoint.sh ${RUNNER_PATH}/entrypoint.sh
