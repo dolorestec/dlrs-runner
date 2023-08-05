@@ -22,8 +22,7 @@ echo "Configuring runner..."
     --token ${RUNNER_TOKEN} \
     --name ${RUNNER_NAME} \
     --runnergroup ${RUNNER_GROUP} \
-    --labels ${RUNNER_LABELS} \ 
-    --replace \
+    --labels ${RUNNER_LABELS} \
     $> /dev/null
 
 echo "Starting runner..."

@@ -1,8 +1,10 @@
 FROM ubuntu:latest AS runner
 
+ARG VERSION
+
 ENV \
 	RUNNER_PATH=/runner \
-	RUNNER_URL=https://github.com/actions/runner/releases/download/v2.307.1/actions-runner-linux-x64-2.307.1.tar.gz
+	RUNNER_URL=https://github.com/actions/runner/releases/download/v${VERSION}/actions-runner-linux-x64-${VERSION}.tar.gz
 
 WORKDIR $RUNNER_PATH
 
@@ -18,9 +20,22 @@ RUN apt-get update \
 FROM ubuntu:latest AS builder
 
 RUN apt-get update \
-	&& apt-get install --no-install-recommends -y \
-		git \
+	&& apt-get install -y --no-install-recommends \
+		curl \
 		ca-certificates \
+		gnupg \
+		git \
+	&& install -m 0755 -d /etc/apt/keyrings \
+	&& curl -f -sSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
+	&& chmod a+r /etc/apt/keyrings/docker.gpg \
+	&& echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu focal stable" > /etc/apt/sources.list.d/docker.list \
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		docker-ce \
+		docker-ce-cli \
+		containerd.io \
+		docker-buildx-plugin \
+		docker-compose-plugin \
 	&& rm -rf /var/lib/apt/lists/*
 
 ENV \
@@ -43,6 +58,8 @@ COPY ./entrypoint.sh ${RUNNER_PATH}/entrypoint.sh
 
 WORKDIR ${RUNNER_PATH}
 
+ARG TOKEN
+
 ENV \
 	RUNNER_ALLOW_RUNASROOT=0 \
 	RUNNER_ORGANIZATION=dolorestec \
@@ -52,7 +69,7 @@ ENV \
 	RUNNER_LABELS=dlrs \
 	RUNNER_GROUP=default \
 	RUNNER_URL=https://github.com/dolorestec \
-	RUNNER_TOKEN=${RUNNER_TOKEN}
+	RUNNER_TOKEN=${TOKEN}
 
 	
 RUN chmod +x ${RUNNER_PATH}/entrypoint.sh \

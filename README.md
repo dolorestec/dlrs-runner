@@ -1,17 +1,12 @@
-# DLRS - Image Docker
+# DLRS Runner
+## Description
+Imagem Docker para runner do github.
 
-## Descrição
+### Dockerfile
 
-Imagem para execução de aplicações em Python 3.11
+#### ARGS
+- VERSION: Versão do runner a ser instalado. Ex: 2.263.0
+- TOKEN: Token de acesso do github.
 
-
-## Workflows
-### Build and Push
-- Arquivo: `.github/workflows/build-and-push.yml`
-- Descrição: Executa o build da imagem e faz o push para o Docker Hub
-- Branch: `develop`, `main`
-- Evento: `push`, `workflow_dispatch`
-- Workflow: `build-and-push`
-- Steps:
-     - `variables` - Define as variáveis de ambiente
-     - `build-push` - Executa o build e push da imagem
+#### ENV
+docker build --tag dlrs-runner --load --build-arg TOKEN=<TOKEN> --build-arg VERSION=2.307.1 .
