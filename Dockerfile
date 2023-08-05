@@ -25,6 +25,8 @@ RUN apt-get update \
 		ca-certificates \
 		gnupg \
 		git \
+		systemd \
+		dotnet-runtime-7.0 \
 	&& install -m 0755 -d /etc/apt/keyrings \
 	&& curl -f -sSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
 	&& chmod a+r /etc/apt/keyrings/docker.gpg \
@@ -75,9 +77,7 @@ ENV \
 	RUNNER_TOKEN=${TOKEN}
 
 	
-RUN chmod +x ${RUNNER_PATH}/entrypoint.sh \
-	&& chmod +x ${RUNNER_PATH}/bin/installdependencies.sh \
-	&& ./bin/installdependencies.sh
+RUN chmod +x entrypoint.sh
 
 USER ${USER}
 ENTRYPOINT [ "./entrypoint.sh" ]
