@@ -41,23 +41,11 @@ RUN apt-get update \
 	&& rm -rf /var/lib/apt/lists/*
 
 ENV \
-	USER=runner \
-	USER_PATH=/root \
- 	RUNNER_PATH=/root/runner \
+	RUNNER_PATH=/root/runner \
 	DEBIAN_FRONTEND=noninteractive \
 	DEBCONF_NONINTERACTIVE_SEEN=true
-
-RUN mkdir -p ${RUNNER_PATH} \
-	&& useradd -d ${USER_PATH} -s /bin/bash -m ${USER} \
-	&& chown -R ${USER}:${USER} ${USER_PATH} \
-	&& echo "${USER} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
-	&& chown -R ${USER}:${USER} ${USER_PATH} \
-	&& chmod -R 777 ${USER_PATH} \
-	&& mkdir /var/run/docker.sock \
-	&& chmod 777 /var/run/docker.sock \
-	&& systemctl enable docker
 	
-COPY --from=runner ${USER} ${RUNNER_PATH}
+COPY --from=runner ./runner ${RUNNER_PATH}
 
 COPY ./entrypoint.sh ${RUNNER_PATH}/entrypoint.sh
 
@@ -77,7 +65,6 @@ ENV \
 	RUNNER_TOKEN=${TOKEN}
 
 	
-RUN chmod +x entrypoint.sh
+RUN chmod +x ${RUNNER_PATH}/entrypoint.sh
 
-USER ${USER}
 ENTRYPOINT [ "./entrypoint.sh" ]

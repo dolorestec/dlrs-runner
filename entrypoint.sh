@@ -15,6 +15,9 @@ echo "Repository: ${RUNNER_REPOSITORY}"
 echo "URL: ${RUNNER_URL}"
 echo "Labels: ${RUNNER_LABELS}"
 
+echo "Starting docker...."
+service docker start
+
 echo "Configuring runner..."
 ./config.sh \
     --unattended \
