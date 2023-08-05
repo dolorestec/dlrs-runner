@@ -44,7 +44,9 @@ jobs:
           echo "DLRS_TAG=$(cat ${{env.DLRS_VERSION_FILE}} | grep version | awk -F':' '{print $2}' | sed 's/ \|"\|//g')" >> ${{env.DLRS_ENV_FILE}}
           echo "DLRS_SUFFIX=$( echo $(cat ${{env.DLRS_VERSION_FILE}} | grep version | awk -F':' '{print $2}' | sed 's/ \|"\|//g') | awk -F'-' '{print $2}')" >> ${{env.DLRS_ENV_FILE}}
           echo "DLRS_RUNNER_VERSION="2.307.1"" >> ${{env.DLRS_ENV_FILE}}
-          echo "DLRS_RUNNER_URL="https://github.com/actions/runner/releases/download/v$(echo $DLRS_RUNNER_VERSION)/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz"" >> ${{env.DLRS_ENV_FILE}}
+          echo "DLRS_REGISTRY=ghcr.io" >> ${{env.DLRS_ENV_FILE}}
+          echo "BUILDKIT_COLORS='run=123,20,245:error=yellow:cancel=blue:warning=white'" >> ${{env.DLRS_ENV_FILE}}
+          echo "BUILDKIT_PROGRESS=plain" >> ${{env.DLRS_ENV_FILE}}
           echo "::endgroup::"
         env:
           DLRS_ENV_FILE: ${{ format('{0}-env.json',github.event.repository.name) }}
@@ -95,18 +97,18 @@ jobs:
       - name: Login to ghcr.io
         uses: dolorestec/devops/.github/actions/docker/registry/login@develop
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ${{ env.DLRS_REGISTRY }}
           username: ${{ env.USERNAME }}
           token: ${{ env.TOKEN }}
         env:
-          REGISTRY: ghcr.io
+          DLRS_REGISTRY: ${{ env.DLRS_REGISTRY }}
           USERNAME: ${{ github.actor }}
           TOKEN: ${{ github.token }}
                 
       - name: Build image
         uses: dolorestec/devops/.github/actions/docker/buildx/build@develop
         with:
-          image: "ghcr.io/${{ env.DLRS_REPOSITORY }}"
+          image: ${{ env.DLRS_REGISTRY }}/${{ env.DLRS_REPOSITORY }}
           tag: ${{ env.DLRS_TAG }}
           context: .
           dockerfile: Dockerfile
@@ -114,10 +116,11 @@ jobs:
         env:
           DLRS_REPOSITORY: ${{ env.DLRS_REPOSITORY }}
           DLRS_TAG: ${{ env.DLRS_TAG }}
+          DLRS_REGISTRY: ${{ env.DLRS_REGISTRY }}
                     
       - name: Logout from ghcr.io
         uses: dolorestec/devops/.github/actions/docker/registry/logout@develop
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ${{ env.DLRS_REGISTRY }}
         env:
-          REGISTRY: ghcr.io
+          DLRS_REGISTRY: ${{ env.DLRS_REGISTRY }}
